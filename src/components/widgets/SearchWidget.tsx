@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react'
 import { Search, X } from 'lucide-react'
-
-type SearchEngine = 'google' | 'duckduckgo' | 'bing'
+import type { SearchEngine } from '../../types'
 
 const SEARCH_ENGINES: Record<SearchEngine, { name: string; url: string }> = {
   google: { name: 'Google', url: 'https://www.google.com/search?q=' },

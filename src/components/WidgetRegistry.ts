@@ -92,7 +92,7 @@ export const getWidgetSizeClasses = (size: WidgetSize) => {
   const sizeClasses: Record<WidgetSize, string> = {
     small: 'col-span-1 row-span-1',
     medium: 'col-span-1 row-span-2',
-    large: 'col-span-2 row-span-2',
+    large: 'col-span-1 md:col-span-2 row-span-2',
   }
   return sizeClasses[size]
 }

@@ -10,6 +10,12 @@ export type WidgetType =
 
 export type WidgetSize = 'small' | 'medium' | 'large';
 
+// Search widget types
+export type SearchEngine = 'google' | 'duckduckgo' | 'bing';
+
+// Task widget types
+export type Priority = 'low' | 'medium' | 'high';
+
 export interface Position {
   x: number;
   y: number;
@@ -35,7 +41,7 @@ export interface Task {
   id: string;
   title: string;
   completed: boolean;
-  priority: 'low' | 'medium' | 'high';
+  priority: Priority;
   dueDate?: Date;
   createdAt: Date;
 }

@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-
-interface Quote {
-  text: string
-  author: string
-  category: string
-}
+import type { Quote } from '../../types'
 
 const MOCK_QUOTES: Quote[] = [
   {
