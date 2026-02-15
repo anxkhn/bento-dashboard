@@ -237,25 +237,25 @@ export function Dashboard() {
   }, [removeWidget])
 
   const gridStyles = layoutMode === 'grid'
-    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[minmax(180px,auto)]'
-    : 'flex flex-wrap gap-4'
+    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 auto-rows-[minmax(160px,auto)] md:auto-rows-[minmax(180px,auto)]'
+    : 'flex flex-wrap gap-3 md:gap-4'
 
   return (
-    <div className="min-h-screen p-4 md:p-6 lg:p-8">
-      <header className="flex justify-between items-center mb-8">
+    <div className="min-h-screen p-3 md:p-6 lg:p-8">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Bento Dashboard</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Bento Dashboard</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Welcome back, {preferences.userName}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <ThemeToggle />
           
           <button
             onClick={() => setLayoutMode(layoutMode === 'grid' ? 'flex' : 'grid')}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-2 md:p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={`Switch to ${layoutMode === 'grid' ? 'flex' : 'grid'} layout`}
           >
             {layoutMode === 'grid' ? (
@@ -267,7 +267,7 @@ export function Dashboard() {
 
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-2 md:p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label="Open settings"
           >
             <Settings className="w-5 h-5" />
@@ -275,7 +275,7 @@ export function Dashboard() {
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 btn-primary"
+            className="flex items-center gap-2 btn-primary min-h-[44px] px-3 md:px-4"
             aria-label="Add new widget"
           >
             <Plus className="w-4 h-4" />
