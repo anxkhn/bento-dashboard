@@ -24,9 +24,27 @@ export function TasksWidget() {
   const [newTaskDueDate, setNewTaskDueDate] = useState('')
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
   const [isAddingTask, setIsAddingTask] = useState(false)
+  const [titleError, setTitleError] = useState('')
+
+  const MAX_TITLE_LENGTH = 200
+
+  const validateTitle = (title: string): string => {
+    const trimmed = title.trim()
+    if (!trimmed) {
+      return 'Task title cannot be empty'
+    }
+    if (trimmed.length > MAX_TITLE_LENGTH) {
+      return `Task title must be ${MAX_TITLE_LENGTH} characters or less`
+    }
+    return ''
+  }
 
   const handleAddTask = () => {
-    if (!newTaskTitle.trim()) return
+    const error = validateTitle(newTaskTitle)
+    if (error) {
+      setTitleError(error)
+      return
+    }
     
     const dueDate = newTaskDueDate ? new Date(newTaskDueDate) : undefined
     addTask(newTaskTitle.trim(), newTaskPriority, dueDate)
@@ -34,6 +52,7 @@ export function TasksWidget() {
     setNewTaskPriority('medium')
     setNewTaskDueDate('')
     setIsAddingTask(false)
+    setTitleError('')
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -88,12 +107,18 @@ export function TasksWidget() {
           <input
             type="text"
             value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
+            onChange={(e) => {
+              setNewTaskTitle(e.target.value)
+              if (titleError) setTitleError(validateTitle(e.target.value))
+            }}
             onKeyDown={handleKeyDown}
             placeholder="What needs to be done?"
-            className="input-field text-sm mb-2"
+            className={`input-field text-sm mb-2 ${titleError ? 'border-red-500' : ''}`}
             autoFocus
           />
+          {titleError && (
+            <p className="text-xs text-red-500 mb-2">{titleError}</p>
+          )}
           <div className="flex gap-2 mb-2">
             <select
               value={newTaskPriority}
@@ -122,7 +147,7 @@ export function TasksWidget() {
             </button>
             <button
               onClick={handleAddTask}
-              disabled={!newTaskTitle.trim()}
+              disabled={!!titleError || !newTaskTitle.trim()}
               className="btn-primary text-xs disabled:opacity-50"
             >
               Add Task
