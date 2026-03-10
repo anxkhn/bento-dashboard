@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useDashboardStore } from '../../store/dashboardStore'
 import { Plus, Trash2, Check, AlertCircle } from 'lucide-react'
 import { format, isToday, isTomorrow, isPast } from 'date-fns'
-
-type Priority = 'low' | 'medium' | 'high'
+import { Priority } from '../../types'
 
 const PRIORITY_COLORS: Record<Priority, string> = {
   low: 'text-green-500',

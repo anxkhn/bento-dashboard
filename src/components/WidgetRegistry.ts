@@ -6,16 +6,7 @@ import { TasksWidget } from './widgets/TasksWidget'
 import { QuoteWidget } from './widgets/QuoteWidget'
 import { CalendarWidget } from './widgets/CalendarWidget'
 import { SearchWidget } from './widgets/SearchWidget'
-import type { WidgetType, WidgetSize } from '../types'
-
-export interface WidgetDefinition {
-  id: WidgetType
-  name: string
-  description: string
-  defaultSize: WidgetSize
-  component: React.ComponentType
-  icon: string
-}
+import type { WidgetType, WidgetSize, WidgetDefinition} from '../types'
 
 export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
   clock: {
