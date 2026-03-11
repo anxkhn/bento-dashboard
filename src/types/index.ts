@@ -16,7 +16,7 @@ export interface Position {
 }
 
 export interface WidgetConfig {
-  id: string;
+  id: string; 
   type: WidgetType;
   position: Position;
   size: WidgetSize;
@@ -79,3 +79,23 @@ export interface DashboardState {
   weather: WeatherData | null;
   preferences: UserPreferences;
 }
+
+//start of relocated type/interface definitions
+export interface Quote {
+  text: string
+  author: string
+  category: string
+}
+
+export interface WidgetDefinition {
+  id: WidgetType
+  name: string
+  description: string
+  defaultSize: WidgetSize
+  component: React.ComponentType
+  icon: string
+}
+
+export type SearchEngine = 'google' | 'duckduckgo' | 'bing'
+
+export type Priority = 'low' | 'medium' | 'high'
