@@ -164,6 +164,92 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Code style guide
 - Submitting pull requests
 
+## Troubleshooting
+
+Common issues and solutions when setting up or running the application.
+
+### Node Version Issues
+
+**Problem**: Build fails with errors about unsupported syntax or modules.
+
+**Cause**: The project requires Node.js 18+ for modern JavaScript features.
+
+**Solution**:
+```bash
+# Check your Node version
+node --version
+
+# If below 18, upgrade using nvm or download from nodejs.org
+nvm install 20
+nvm use 20
+```
+
+### Dependency Installation Problems
+
+**Problem**: `npm install` or `pnpm install` fails with peer dependency errors.
+
+**Cause**: Incompatible package manager or outdated lock file.
+
+**Solution**:
+```bash
+# Try clearing node_modules and lock file
+rm -rf node_modules package-lock.json
+
+# Reinstall dependencies
+npm install
+
+# Or try with pnpm (recommended)
+pnpm install
+```
+
+### Build Errors
+
+**Problem**: `npm run build` fails with TypeScript or ESLint errors.
+
+**Cause**: Type mismatches or code style violations.
+
+**Solution**:
+```bash
+# Check for type errors
+npm run type-check
+
+# Check for linting issues
+npm run lint
+
+# Fix auto-fixable issues
+npm run lint -- --fix
+```
+
+### Port Already in Use
+
+**Problem**: `npm run dev` fails with "Port 5173 is already in use".
+
+**Cause**: Another process is using the default Vite dev server port.
+
+**Solution**:
+```bash
+# Find and kill the process using port 5173
+lsof -ti:5173 | xargs kill -9
+
+# Or specify a different port
+npm run dev -- --port 3000
+```
+
+### Vite Server Not Starting
+
+**Problem**: Vite dev server crashes immediately after starting.
+
+**Cause**: Configuration issues or incompatible plugins.
+
+**Solution**:
+```bash
+# Clear Vite cache
+rm -rf node_modules/.vite
+
+# Restart the dev server
+npm run dev
+```
+
 ## Issue Labels Guide
 
 | Label | Description | Time Estimate |
