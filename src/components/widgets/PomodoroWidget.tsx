@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef} from 'react'
 import { useDashboardStore } from '../../store/dashboardStore'
 import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react'
 
@@ -21,21 +21,36 @@ export function PomodoroWidget() {
   const [customWorkDuration, setCustomWorkDuration] = useState(25)
 
   useEffect(() => {
-    if (pomodoro.isRunning) {
-      intervalRef.current = setInterval(() => {
+    var timeout: ReturnType<typeof setTimeout> | null = null;
+    const interval = 1000
+    function tick(expectedArg?: number) {
         tickPomodoro()
-      }, 1000)
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
+        let expected = expectedArg || Date.now()
+        let dt = Date.now() - expected // time drift (positive for overshooting, negative for undershooting)
+        if (dt > interval) {
+          console.log('Warning: timer is running behind schedule by', dt, 'ms')
+          tickPomodoro(Math.floor(dt / interval)) // If we're behind schedule, catch up by ticking multiple times
+          expected = Date.now() - (dt % interval) + interval // Adjust expected time to account for drift
+        } else {
+          expected += interval
+        }
+        if (pomodoro.isRunning) {
+          timeout = setTimeout(() => tick(expected), Math.max(0, interval - dt)) // Schedule next tick, adjusting for drift
+        }
     }
-
+    if (pomodoro.isRunning) {
+      tick()
+    } else if (timeout) {
+      clearTimeout(timeout)
+    }
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+      if (timeout) {
+        clearTimeout(timeout)
       }
     }
-  }, [pomodoro.isRunning, tickPomodoro])
+  }, [pomodoro.isRunning])
+
+
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)

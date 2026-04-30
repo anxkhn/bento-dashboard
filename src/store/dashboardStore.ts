@@ -38,7 +38,7 @@ interface DashboardStore {
   startPomodoro: () => void
   pausePomodoro: () => void
   resetPomodoro: () => void
-  tickPomodoro: () => void
+  tickPomodoro: (numberTicks?: number) => void
   skipPomodoroPhase: () => void
   
   setWeather: (data: WeatherData) => void
@@ -201,11 +201,11 @@ export const useDashboardStore = create<DashboardStore>()(
         }))
       },
 
-      tickPomodoro: () => {
+      tickPomodoro: (numberTicks?: number) => {
         const state = get()
         if (!state.pomodoro.isRunning) return
         
-        const newTimeLeft = state.pomodoro.timeLeft - 1
+        const newTimeLeft = state.pomodoro.timeLeft - (numberTicks || 1)
         
         if (newTimeLeft <= 0) {
           const nextMode = state.pomodoro.mode === 'work' 

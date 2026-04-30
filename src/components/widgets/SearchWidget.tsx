@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Search, X } from 'lucide-react'
+import { useDebounce } from '@/hooks/debounce';
+import { set } from 'date-fns';
 
 type SearchEngine = 'google' | 'duckduckgo' | 'bing'
 
@@ -22,6 +24,7 @@ export function SearchWidget() {
   const [query, setQuery] = useState('')
   const [engine, setEngine] = useState<SearchEngine>('google')
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const debouncedQuery = useDebounce(query, 300)
 
   const handleSearch = useCallback((searchQuery: string) => {
     if (!searchQuery.trim()) return
@@ -38,17 +41,18 @@ export function SearchWidget() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      handleSearch(query)
+      return handleSearch(query)
     }
     if (e.key === 'Escape') {
-      setShowSuggestions(false)
+      return setShowSuggestions(false)
     }
+    
   }
 
   const filteredSuggestions = SEARCH_SUGGESTIONS.filter(
     (suggestion) =>
-      suggestion.toLowerCase().includes(query.toLowerCase()) &&
-      query.length > 0
+      suggestion.toLowerCase().includes(debouncedQuery.toLowerCase()) &&
+      debouncedQuery.length > 0
   )
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -60,6 +64,7 @@ export function SearchWidget() {
   const clearSearch = () => {
     setQuery('')
   }
+
 
   return (
     <div className="widget-card p-6 h-full flex flex-col justify-center">
