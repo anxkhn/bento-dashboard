@@ -29,7 +29,7 @@ gh issue create \
   --title "docs: Fix typo in README.md Quick Start section" \
   --body "$(cat <<'EOF'
 ## Problem Description
-There is a typo in the README.md file in the Quick Start section. The word "verfication" should be "verification".
+There is a typo in the README.md file in the Quick Start section. The word "verification" should be "verification".
 
 ## Context
 This typo appears in the Verification section of the README. While it is a small issue, fixing it helps maintain documentation quality and shows new contributors how to make their first open source contribution.
