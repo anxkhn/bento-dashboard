@@ -205,3 +205,29 @@ This is an educational project designed to help developers learn React, Vite, Ta
 ---
 
 Ready to contribute? Check out [CONTRIBUTING.md](CONTRIBUTING.md) and pick your first issue!
+## Troubleshooting
+
+### Port already in use
+
+If the development server reports that the default port is already in use, stop the conflicting process or start the application on another port.
+
+```bash
+npm run dev -- --port 3001
+```
+
+### Dependency installation issues
+
+If dependencies fail to install correctly, delete the `node_modules` folder and `package-lock.json`, then reinstall them.
+
+```bash
+npm install
+```
+
+### Build errors
+
+If the project fails to build, verify your Node.js version and run the lint command to identify any issues.
+
+```bash
+npm run lint
+npm run build
+```
