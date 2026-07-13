@@ -37,7 +37,7 @@ function WidgetWrapper({
           className="absolute top-2 right-2 p-1 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-10"
           aria-label={`Remove ${WIDGET_REGISTRY[widget.type]?.name} widget`}
         >
-          <X className="w-4 h-4 text-gray-500" />
+          <X className="w-4 h-4 text-gray-500" aria-hidden="true" />
         </button>
       )}
     </div>
@@ -82,7 +82,7 @@ function AddWidgetModal({
             className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -174,7 +174,7 @@ function SettingsPanel({
             className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Close settings"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -259,9 +259,9 @@ export function Dashboard() {
             aria-label={`Switch to ${layoutMode === 'grid' ? 'flex' : 'grid'} layout`}
           >
             {layoutMode === 'grid' ? (
-              <Grid3X3 className="w-5 h-5" />
+              <Grid3X3 className="w-5 h-5" aria-hidden="true" />
             ) : (
-              <LayoutGrid className="w-5 h-5" />
+              <LayoutGrid className="w-5 h-5" aria-hidden="true" />
             )}
           </button>
 
@@ -270,7 +270,7 @@ export function Dashboard() {
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Open settings"
           >
-            <Settings className="w-5 h-5" />
+            <Settings className="w-5 h-5" aria-hidden="true" />
           </button>
 
           <button
@@ -278,7 +278,7 @@ export function Dashboard() {
             className="flex items-center gap-2 btn-primary"
             aria-label="Add new widget"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4" aria-hidden="true" />
             <span className="hidden sm:inline">Add Widget</span>
           </button>
         </div>
@@ -296,7 +296,7 @@ export function Dashboard() {
         {widgets.length === 0 && (
           <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
             <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-              <LayoutGrid className="w-8 h-8 text-gray-400" />
+              <LayoutGrid className="w-8 h-8 text-gray-400" aria-hidden="true" />
             </div>
             <h2 className="text-lg font-semibold mb-2">No widgets yet</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">

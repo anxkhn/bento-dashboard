@@ -13,12 +13,12 @@ const MOCK_WEATHER: WeatherData = {
 }
 
 const WEATHER_ICONS: Record<string, React.ReactNode> = {
-  'clear': <Sun className="w-12 h-12 text-yellow-500" />,
-  'sunny': <Sun className="w-12 h-12 text-yellow-500" />,
-  'partly-cloudy': <Cloud className="w-12 h-12 text-gray-400" />,
-  'cloudy': <Cloud className="w-12 h-12 text-gray-400" />,
-  'rain': <CloudRain className="w-12 h-12 text-blue-400" />,
-  'snow': <CloudSnow className="w-12 h-12 text-blue-200" />,
+  'clear': <Sun className="w-12 h-12 text-yellow-500" aria-hidden="true" />,
+  'sunny': <Sun className="w-12 h-12 text-yellow-500" aria-hidden="true" />,
+  'partly-cloudy': <Cloud className="w-12 h-12 text-gray-400" aria-hidden="true" />,
+  'cloudy': <Cloud className="w-12 h-12 text-gray-400" aria-hidden="true" />,
+  'rain': <CloudRain className="w-12 h-12 text-blue-400" aria-hidden="true" />,
+  'snow': <CloudSnow className="w-12 h-12 text-blue-200" aria-hidden="true" />,
 }
 
 const API_KEY = 'demo_key'
@@ -109,8 +109,8 @@ export function WeatherWidget() {
       )}
 
       <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="mb-2">
-          {WEATHER_ICONS[displayWeather.icon] || <Cloud className="w-12 h-12 text-gray-400" />}
+        <div className="mb-2" role="img" aria-label={displayWeather.condition}>
+          {WEATHER_ICONS[displayWeather.icon] || <Cloud className="w-12 h-12 text-gray-400" aria-hidden="true" />}
         </div>
         
         <div className="text-4xl font-bold mb-1">
@@ -127,11 +127,11 @@ export function WeatherWidget() {
 
         <div className="flex gap-6 mt-4 text-sm text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-1">
-            <Droplets className="w-4 h-4" />
+            <Droplets className="w-4 h-4" aria-hidden="true" />
             <span>{displayWeather.humidity}%</span>
           </div>
           <div className="flex items-center gap-1">
-            <Wind className="w-4 h-4" />
+            <Wind className="w-4 h-4" aria-hidden="true" />
             <span>{displayWeather.windSpeed} km/h</span>
           </div>
         </div>

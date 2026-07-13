@@ -83,7 +83,7 @@ export function SearchWidget() {
               aria-label="Search query"
               autoComplete="off"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" />
             {query && (
               <button
                 type="button"
@@ -91,7 +91,7 @@ export function SearchWidget() {
                 className="absolute right-3 top-1/2 -translate-y-1/2"
                 aria-label="Clear search"
               >
-                <X className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                <X className="w-4 h-4 text-gray-400 hover:text-gray-600" aria-hidden="true" />
               </button>
             )}
           </div>
