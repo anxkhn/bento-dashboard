@@ -65,7 +65,7 @@ export function PomodoroWidget() {
       <h2 className="text-lg font-semibold mb-2">{MODE_LABELS[pomodoro.mode]}</h2>
       
       <div className="relative w-32 h-32 mb-4">
-        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100" role="img" aria-label={`Timer progress: ${Math.round(progress)}% complete`}>
           <circle
             cx="50"
             cy="50"

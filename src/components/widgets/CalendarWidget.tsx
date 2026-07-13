@@ -55,7 +55,7 @@ export function CalendarWidget() {
             className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Previous month"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4" aria-hidden="true" />
           </button>
           <button
             onClick={goToToday}
@@ -68,14 +68,14 @@ export function CalendarWidget() {
             className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Next month"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-7 gap-1 text-center mb-2">
         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-          <div key={index} className="text-xs text-gray-400 font-medium">
+          <div key={index} className="text-xs text-gray-400 font-medium" aria-hidden="true">
             {day}
           </div>
         ))}
