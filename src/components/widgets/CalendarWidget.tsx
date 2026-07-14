@@ -25,7 +25,12 @@ export function CalendarWidget() {
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd })
 
   const startDay = monthStart.getDay()
-  const emptyDays = Array(startDay).fill(null)
+  const leadingEmpty = Array(startDay).fill(null)
+
+  // Fill trailing cells so the grid always has complete weeks (multiples of 7)
+  const totalCells = startDay + days.length
+  const trailingCount = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7)
+  const trailingEmpty = Array(trailingCount).fill(null)
 
   const goToToday = () => {
     setCurrentDate(new Date())
@@ -82,8 +87,8 @@ export function CalendarWidget() {
       </div>
 
       <div className="grid grid-cols-7 gap-1 flex-1">
-        {emptyDays.map((_, index) => (
-          <div key={`empty-${index}`} className="aspect-square" />
+        {leadingEmpty.map((_, index) => (
+          <div key={`empty-start-${index}`} className="aspect-square" />
         ))}
         {days.map((day) => {
           const isSelected = selectedDate && isSameDay(day, selectedDate)
@@ -117,6 +122,9 @@ export function CalendarWidget() {
             </button>
           )
         })}
+        {trailingEmpty.map((_, index) => (
+          <div key={`empty-end-${index}`} className="aspect-square" />
+        ))}
       </div>
 
       {selectedDate && selectedEvents.length > 0 && (
