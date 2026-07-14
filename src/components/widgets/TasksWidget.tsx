@@ -58,9 +58,33 @@ export function TasksWidget() {
   })
 
   const sortedTasks = [...filteredTasks].sort((a, b) => {
+    // 1. Incomplete tasks always come before completed ones
     if (a.completed !== b.completed) return a.completed ? 1 : -1
+
+    // 2. Among incomplete tasks, sort by due date (overdue/soonest first)
+    //    Tasks with no due date come after tasks with due dates
+    if (!a.completed && !b.completed) {
+      const aHasDue = !!a.dueDate
+      const bHasDue = !!b.dueDate
+      if (aHasDue && bHasDue) {
+        const aDue = new Date(a.dueDate!).getTime()
+        const bDue = new Date(b.dueDate!).getTime()
+        if (aDue !== bDue) return aDue - bDue
+      } else if (aHasDue && !bHasDue) {
+        return -1
+      } else if (!aHasDue && bHasDue) {
+        return 1
+      }
+    }
+
+    // 3. Same due date (or both without): sort by priority (high → medium → low)
     const priorityOrder = { high: 0, medium: 1, low: 2 }
-    return priorityOrder[a.priority] - priorityOrder[b.priority]
+    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+      return priorityOrder[a.priority] - priorityOrder[b.priority]
+    }
+
+    // 4. Same priority: sort by creation date (newest first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
 
   const activeTasksCount = tasks.filter((t) => !t.completed).length
