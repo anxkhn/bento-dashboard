@@ -178,50 +178,115 @@ export const useDashboardStore = create<DashboardStore>()(
       },
 
       startPomodoro: () => {
-        set((state) => ({
-          pomodoro: { ...state.pomodoro, isRunning: true },
-        }))
+        const state = get()
+
+        const durations = {
+          work: 25 * 60,
+          shortBreak: 5 * 60,
+          longBreak: 15 * 60,
+        }
+
+        const totalDuration = durations[state.pomodoro.mode]
+
+        const elapsedBeforePause =
+          totalDuration - state.pomodoro.timeLeft
+
+        const startedAt =
+          Date.now() - elapsedBeforePause * 1000
+
+        set({
+          pomodoro: {
+            ...state.pomodoro,
+            isRunning: true,
+            startedAt,
+          },
+        })
       },
 
       pausePomodoro: () => {
-        set((state) => ({
-          pomodoro: { ...state.pomodoro, isRunning: false },
-        }))
+        const state = get()
+
+        if (!state.pomodoro.isRunning || !state.pomodoro.startedAt) {
+          return
+        }
+
+        const elapsed = Math.floor(
+          (Date.now() - state.pomodoro.startedAt) / 1000
+        )
+
+        const durations = {
+          work: 25 * 60,
+          shortBreak: 5 * 60,
+          longBreak: 15 * 60,
+        }
+
+        const totalDuration = durations[state.pomodoro.mode]
+
+        const newTimeLeft = Math.max(
+          0,
+          totalDuration - elapsed
+        )
+
+        set({
+          pomodoro: {
+            ...state.pomodoro,
+            timeLeft: newTimeLeft,
+            isRunning: false,
+            startedAt: undefined,
+          },
+        })
       },
 
       resetPomodoro: () => {
         const workDuration = 25 * 60
+
         set((state) => ({
           pomodoro: {
             ...state.pomodoro,
             timeLeft: workDuration,
             isRunning: false,
             mode: 'work',
+            startedAt: undefined,
           },
         }))
       },
 
       tickPomodoro: () => {
         const state = get()
+
         if (!state.pomodoro.isRunning) return
-        
-        const newTimeLeft = state.pomodoro.timeLeft - 1
-        
+        if (!state.pomodoro.startedAt) return
+
+        const durations = {
+          work: 25 * 60,
+          shortBreak: 5 * 60,
+          longBreak: 15 * 60,
+        }
+
+        const totalDuration = durations[state.pomodoro.mode]
+
+        const elapsed = Math.floor(
+          (Date.now() - state.pomodoro.startedAt) / 1000
+        )
+
+        const newTimeLeft = Math.max(
+          0,
+          totalDuration - elapsed
+        )
+
         if (newTimeLeft <= 0) {
-          const nextMode = state.pomodoro.mode === 'work' 
-            ? (state.pomodoro.sessionsCompleted % 4 === 3 ? 'longBreak' : 'shortBreak')
-            : 'work'
-          
-          const durations = {
-            work: 25 * 60,
-            shortBreak: 5 * 60,
-            longBreak: 15 * 60,
-          }
-          
-          const sessionsCompleted = state.pomodoro.mode === 'work' 
-            ? state.pomodoro.sessionsCompleted + 1 
-            : state.pomodoro.sessionsCompleted
-          
+          const nextMode =
+            state.pomodoro.mode === 'work'
+              ? state.pomodoro.sessionsCompleted % 4 === 3
+                ? 'longBreak'
+                : 'shortBreak'
+              : 'work'
+
+          const sessionsCompleted =
+            state.pomodoro.mode === 'work'
+              ? state.pomodoro.sessionsCompleted + 1
+              : state.pomodoro.sessionsCompleted
+
           set({
             pomodoro: {
               ...state.pomodoro,
@@ -229,9 +294,12 @@ export const useDashboardStore = create<DashboardStore>()(
               mode: nextMode,
               sessionsCompleted,
               isRunning: false,
+              startedAt: undefined,
             },
           })
-        } else {
+        } else if (
+          newTimeLeft !== state.pomodoro.timeLeft
+        ) {
           set({
             pomodoro: {
               ...state.pomodoro,
@@ -243,20 +311,25 @@ export const useDashboardStore = create<DashboardStore>()(
 
       skipPomodoroPhase: () => {
         const state = get()
-        const nextMode = state.pomodoro.mode === 'work' 
-          ? (state.pomodoro.sessionsCompleted % 4 === 3 ? 'longBreak' : 'shortBreak')
-          : 'work'
-        
+
+        const nextMode =
+          state.pomodoro.mode === 'work'
+            ? state.pomodoro.sessionsCompleted % 4 === 3
+              ? 'longBreak'
+              : 'shortBreak'
+            : 'work'
+
         const durations = {
           work: 25 * 60,
           shortBreak: 5 * 60,
           longBreak: 15 * 60,
         }
-        
-        const sessionsCompleted = state.pomodoro.mode === 'work' 
-          ? state.pomodoro.sessionsCompleted + 1 
-          : state.pomodoro.sessionsCompleted
-        
+
+        const sessionsCompleted =
+          state.pomodoro.mode === 'work'
+            ? state.pomodoro.sessionsCompleted + 1
+            : state.pomodoro.sessionsCompleted
+
         set({
           pomodoro: {
             ...state.pomodoro,
@@ -264,6 +337,7 @@ export const useDashboardStore = create<DashboardStore>()(
             mode: nextMode,
             sessionsCompleted,
             isRunning: false,
+            startedAt: undefined,
           },
         })
       },

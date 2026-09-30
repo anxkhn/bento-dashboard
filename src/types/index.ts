@@ -45,6 +45,7 @@ export interface PomodoroState {
   isRunning: boolean;
   mode: 'work' | 'shortBreak' | 'longBreak';
   sessionsCompleted: number;
+  startedAt?: number;
 }
 
 export interface WeatherData {

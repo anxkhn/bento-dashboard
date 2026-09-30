@@ -16,23 +16,24 @@ const MODE_LABELS = {
 
 export function PomodoroWidget() {
   const { pomodoro, startPomodoro, pausePomodoro, resetPomodoro, tickPomodoro, skipPomodoroPhase } = useDashboardStore()
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const animationFrameRef = useRef<number | null>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [customWorkDuration, setCustomWorkDuration] = useState(25)
 
   useEffect(() => {
-    if (pomodoro.isRunning) {
-      intervalRef.current = setInterval(() => {
-        tickPomodoro()
-      }, 1000)
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
+    if (!pomodoro.isRunning) return
+
+    const updateTimer = () => {
+      tickPomodoro()
+      animationFrameRef.current = requestAnimationFrame(updateTimer)
     }
 
+    animationFrameRef.current = requestAnimationFrame(updateTimer)
+
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current)
+        animationFrameRef.current = null
       }
     }
   }, [pomodoro.isRunning, tickPomodoro])
