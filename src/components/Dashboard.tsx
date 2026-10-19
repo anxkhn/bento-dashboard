@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useDashboardStore } from '../store/dashboardStore'
 import { ThemeToggle } from './ThemeToggle'
+import { ErrorBoundary } from './ErrorBoundary'
 import { WIDGET_REGISTRY, getWidgetComponent, getWidgetSizeClasses, AVAILABLE_WIDGETS } from './WidgetRegistry'
 import { Plus, X, Settings, LayoutGrid, Grid3X3 } from 'lucide-react'
 import type { WidgetConfig, WidgetType, WidgetSize } from '../types'
@@ -30,7 +31,9 @@ function WidgetWrapper({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <WidgetComponent />
+      <ErrorBoundary widgetType={widget.type}>
+        <WidgetComponent />
+      </ErrorBoundary>
       {isHovered && (
         <button
           onClick={() => onRemove(widget.id)}
