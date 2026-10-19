@@ -72,6 +72,14 @@ describe('ThemeToggle', () => {
     expect(screen.getByLabelText('Switch to light theme')).toHaveAttribute('aria-pressed', 'false')
   })
 
+  it('gives each theme button a 44px minimum touch target', () => {
+    render(<ThemeToggle />)
+
+    for (const label of ['Switch to light theme', 'Switch to dark theme', 'Use system theme']) {
+      expect(screen.getByLabelText(label)).toHaveClass('min-w-11', 'min-h-11')
+    }
+  })
+
   it('shows loading state before mount', () => {
     const useStateSpy = vi.spyOn(React, 'useState')
     useStateSpy.mockReturnValueOnce([false, vi.fn()])

@@ -12,7 +12,6 @@ function WidgetWrapper({
   widget: WidgetConfig
   onRemove: (id: string) => void 
 }) {
-  const [isHovered, setIsHovered] = useState(false)
   const WidgetComponent = getWidgetComponent(widget.type)
   const sizeClasses = getWidgetSizeClasses(widget.size)
 
@@ -25,21 +24,18 @@ function WidgetWrapper({
   }
 
   return (
-    <div 
-      className={`${sizeClasses} relative`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className={`${sizeClasses} relative group`}>
       <WidgetComponent />
-      {isHovered && (
-        <button
-          onClick={() => onRemove(widget.id)}
-          className="absolute top-2 right-2 p-1 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-10"
-          aria-label={`Remove ${WIDGET_REGISTRY[widget.type]?.name} widget`}
-        >
+      {/* Always visible on touch screens; revealed on hover or focus for mouse users */}
+      <button
+        onClick={() => onRemove(widget.id)}
+        className="absolute -top-5 -right-4 min-w-11 min-h-11 flex items-center justify-center z-10 transition-opacity pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 focus-visible:opacity-100"
+        aria-label={`Remove ${WIDGET_REGISTRY[widget.type]?.name} widget`}
+      >
+        <span className="p-1 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
           <X className="w-4 h-4 text-gray-500" />
-        </button>
-      )}
+        </span>
+      </button>
     </div>
   )
 }
@@ -242,7 +238,7 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8">
-      <header className="flex justify-between items-center mb-8">
+      <header className="flex flex-wrap justify-between items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold">Bento Dashboard</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -250,12 +246,12 @@ export function Dashboard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ThemeToggle />
           
           <button
             onClick={() => setLayoutMode(layoutMode === 'grid' ? 'flex' : 'grid')}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="min-w-11 min-h-11 flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label={`Switch to ${layoutMode === 'grid' ? 'flex' : 'grid'} layout`}
           >
             {layoutMode === 'grid' ? (
@@ -267,7 +263,7 @@ export function Dashboard() {
 
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="min-w-11 min-h-11 flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
             aria-label="Open settings"
           >
             <Settings className="w-5 h-5" />
@@ -275,7 +271,7 @@ export function Dashboard() {
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 btn-primary"
+            className="min-w-11 min-h-11 flex items-center justify-center gap-2 btn-primary"
             aria-label="Add new widget"
           >
             <Plus className="w-4 h-4" />
