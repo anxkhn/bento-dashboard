@@ -44,7 +44,7 @@ export function ThemeToggle() {
     <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 dark:bg-gray-800">
       <button
         onClick={() => handleThemeChange('light')}
-        className={`p-2 rounded-md transition-colors ${
+        className={`min-w-11 min-h-11 flex items-center justify-center p-2 rounded-md transition-colors ${
           preferences.theme === 'light'
             ? 'bg-white dark:bg-gray-700 shadow-sm'
             : 'hover:bg-gray-200 dark:hover:bg-gray-700'
@@ -69,7 +69,7 @@ export function ThemeToggle() {
       </button>
       <button
         onClick={() => handleThemeChange('dark')}
-        className={`p-2 rounded-md transition-colors ${
+        className={`min-w-11 min-h-11 flex items-center justify-center p-2 rounded-md transition-colors ${
           preferences.theme === 'dark'
             ? 'bg-white dark:bg-gray-700 shadow-sm'
             : 'hover:bg-gray-200 dark:hover:bg-gray-700'
@@ -94,7 +94,7 @@ export function ThemeToggle() {
       </button>
       <button
         onClick={() => handleThemeChange('system')}
-        className={`p-2 rounded-md transition-colors ${
+        className={`min-w-11 min-h-11 flex items-center justify-center p-2 rounded-md transition-colors ${
           preferences.theme === 'system'
             ? 'bg-white dark:bg-gray-700 shadow-sm'
             : 'hover:bg-gray-200 dark:hover:bg-gray-700'
