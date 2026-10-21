@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render, screen, act, fireEvent } from '@testing-library/react'
 import { ClockWidget } from '../src/components/widgets/ClockWidget'
 
 vi.mock('../src/store/dashboardStore', () => ({
@@ -55,7 +54,7 @@ describe('ClockWidget', () => {
     expect(screen.getByText('Good Evening')).toBeInTheDocument()
   })
 
-  it('toggles between 12-hour and 24-hour format', async () => {
+  it('toggles between 12-hour and 24-hour format', () => {
     const date = new Date('2024-01-15T14:30:00')
     vi.setSystemTime(date)
 
@@ -64,7 +63,7 @@ describe('ClockWidget', () => {
     expect(screen.getByText('14:30:00')).toBeInTheDocument()
 
     const toggleButton = screen.getByText('Switch to 12-hour')
-    await userEvent.click(toggleButton)
+    fireEvent.click(toggleButton)
 
     expect(screen.getByText('02:30:00 PM')).toBeInTheDocument()
   })
@@ -77,7 +76,9 @@ describe('ClockWidget', () => {
     
     expect(screen.getByText('10:30:00')).toBeInTheDocument()
 
-    vi.advanceTimersByTime(1000)
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
     
     expect(screen.getByText('10:30:01')).toBeInTheDocument()
   })

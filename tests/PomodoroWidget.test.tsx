@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useDashboardStore } from '../src/store/dashboardStore'
@@ -24,7 +24,6 @@ describe('PomodoroWidget', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.useFakeTimers()
     ;(useDashboardStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       pomodoro: defaultPomodoroState,
       startPomodoro: mockStartPomodoro,
@@ -33,10 +32,6 @@ describe('PomodoroWidget', () => {
       tickPomodoro: mockTickPomodoro,
       skipPomodoroPhase: mockSkipPomodoroPhase,
     })
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
   })
 
   it('renders with initial state', () => {
