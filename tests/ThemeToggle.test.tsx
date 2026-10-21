@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import React from 'react'
 import { render, screen } from '@testing-library/react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import userEvent from '@testing-library/user-event'
 import { ThemeToggle } from '../src/components/ThemeToggle'
 import { useDashboardStore } from '../src/store/dashboardStore'
@@ -73,13 +73,9 @@ describe('ThemeToggle', () => {
   })
 
   it('shows loading state before mount', () => {
-    const useStateSpy = vi.spyOn(React, 'useState')
-    useStateSpy.mockReturnValueOnce([false, vi.fn()])
-    
-    render(<ThemeToggle />)
-    
-    const skeleton = document.querySelector('.animate-pulse')
-    expect(skeleton).toBeInTheDocument()
-    useStateSpy.mockRestore()
+    const markup = renderToStaticMarkup(<ThemeToggle />)
+
+    expect(markup).toContain('animate-pulse')
+    expect(markup).not.toContain('Switch to light theme')
   })
 })

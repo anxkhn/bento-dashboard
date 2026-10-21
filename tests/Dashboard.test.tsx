@@ -38,17 +38,17 @@ describe('Dashboard', () => {
   it('opens add widget modal when button is clicked', async () => {
     render(<Dashboard />)
     
-    const addButton = screen.getByText('Add Widget')
+    const addButton = screen.getByLabelText('Add new widget')
     await userEvent.click(addButton)
 
     expect(screen.getByRole('dialog')).toBeInTheDocument()
-    expect(screen.getByText('Add Widget')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Add Widget' })).toBeInTheDocument()
   })
 
   it('displays widget types in add modal', async () => {
     render(<Dashboard />)
     
-    const addButton = screen.getByText('Add Widget')
+    const addButton = screen.getByLabelText('Add new widget')
     await userEvent.click(addButton)
 
     expect(screen.getByText('Clock')).toBeInTheDocument()
@@ -61,7 +61,7 @@ describe('Dashboard', () => {
   it('closes add widget modal when cancel is clicked', async () => {
     render(<Dashboard />)
     
-    const addButton = screen.getByText('Add Widget')
+    const addButton = screen.getByLabelText('Add new widget')
     await userEvent.click(addButton)
 
     const cancelButton = screen.getByText('Cancel')
@@ -91,12 +91,17 @@ describe('Dashboard', () => {
       preferences: { userName: 'Test User', theme: 'light', animationsEnabled: true },
       addWidget: mockAddWidget,
       removeWidget: mockRemoveWidget,
+      tasks: [],
+      addTask: vi.fn(),
+      toggleTask: vi.fn(),
+      deleteTask: vi.fn(),
+      updateTaskPriority: vi.fn(),
     })
 
     render(<Dashboard />)
     
-    expect(screen.getByText('Focus Time')).toBeInTheDocument()
-    expect(screen.getByText('Tasks')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Switch to 1[22]-hour format/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Tasks' })).toBeInTheDocument()
   })
 
   it('removes widget when remove button is clicked', async () => {
@@ -111,7 +116,9 @@ describe('Dashboard', () => {
 
     render(<Dashboard />)
     
-    const widgetCard = screen.getByText('Focus Time').closest('.relative')
+    const widgetCard = screen
+      .getByRole('button', { name: /Switch to 1[22]-hour format/ })
+      .closest('.relative')
     if (widgetCard) {
       fireEvent.mouseEnter(widgetCard)
     }
