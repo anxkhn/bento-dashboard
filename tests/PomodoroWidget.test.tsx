@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useDashboardStore } from '../src/store/dashboardStore'
 import { PomodoroWidget } from '../src/components/widgets/PomodoroWidget'
+import { DEFAULT_NOTIFICATION_PREFERENCES } from '../src/utils/notifications'
 
 vi.mock('../src/store/dashboardStore', () => ({
   useDashboardStore: vi.fn(),
@@ -24,7 +25,6 @@ describe('PomodoroWidget', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.useFakeTimers()
     ;(useDashboardStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       pomodoro: defaultPomodoroState,
       startPomodoro: mockStartPomodoro,
@@ -33,10 +33,6 @@ describe('PomodoroWidget', () => {
       tickPomodoro: mockTickPomodoro,
       skipPomodoroPhase: mockSkipPomodoroPhase,
     })
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
   })
 
   it('renders with initial state', () => {
@@ -158,5 +154,86 @@ describe('PomodoroWidget', () => {
 
     await userEvent.click(screen.getByText('Hide Settings'))
     expect(screen.getByText('Settings')).toBeInTheDocument()
+  })
+})
+
+describe('PomodoroWidget notifications', () => {
+  const mockClearPomodoroCompletion = vi.fn()
+  const notificationCtor = vi.fn() as unknown as {
+    permission: NotificationPermission
+    requestPermission: ReturnType<typeof vi.fn>
+  }
+
+  const defaultPomodoroState = {
+    timeLeft: 25 * 60,
+    isRunning: false,
+    mode: 'work' as const,
+    sessionsCompleted: 0,
+  }
+
+  const renderWith = (
+    completion: { completedMode: string; nextMode: string; at: number } | null,
+    notifications = DEFAULT_NOTIFICATION_PREFERENCES
+  ) => {
+    ;(useDashboardStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      pomodoro: defaultPomodoroState,
+      startPomodoro: vi.fn(),
+      pausePomodoro: vi.fn(),
+      resetPomodoro: vi.fn(),
+      tickPomodoro: vi.fn(),
+      skipPomodoroPhase: vi.fn(),
+      preferences: { notifications },
+      lastPomodoroCompletion: completion,
+      clearPomodoroCompletion: mockClearPomodoroCompletion,
+    })
+    return render(<PomodoroWidget />)
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    notificationCtor.permission = 'granted'
+    notificationCtor.requestPermission = vi.fn(async () => 'granted' as NotificationPermission)
+    Object.defineProperty(window, 'Notification', {
+      configurable: true,
+      writable: true,
+      value: notificationCtor,
+    })
+  })
+
+  afterEach(() => {
+    // @ts-expect-error - resetting the simulated browser API
+    delete window.Notification
+  })
+
+  it('notifies when a focus session completes', () => {
+    renderWith({ completedMode: 'work', nextMode: 'shortBreak', at: Date.now() })
+
+    expect(notificationCtor).toHaveBeenCalledWith(
+      'Focus session complete',
+      expect.objectContaining({ tag: 'bento-pomodoro' })
+    )
+    expect(mockClearPomodoroCompletion).toHaveBeenCalled()
+  })
+
+  it('notifies when a break ends', () => {
+    renderWith({ completedMode: 'shortBreak', nextMode: 'work', at: Date.now() })
+
+    expect(notificationCtor).toHaveBeenCalledWith('Short break over', expect.any(Object))
+  })
+
+  it('stays quiet when no phase completed', () => {
+    renderWith(null)
+
+    expect(notificationCtor).not.toHaveBeenCalled()
+    expect(mockClearPomodoroCompletion).not.toHaveBeenCalled()
+  })
+
+  it('respects the pomodoro notification setting', () => {
+    renderWith({ completedMode: 'work', nextMode: 'shortBreak', at: Date.now() }, {
+      ...DEFAULT_NOTIFICATION_PREFERENCES,
+      pomodoro: false,
+    })
+
+    expect(notificationCtor).not.toHaveBeenCalled()
   })
 })

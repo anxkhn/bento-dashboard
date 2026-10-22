@@ -64,11 +64,29 @@ export interface Quote {
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
+export interface NotificationPreferences {
+  /** Master switch for every notification the dashboard sends. */
+  enabled: boolean;
+  /** Notify when a focus session or break finishes. */
+  pomodoro: boolean;
+  /** Remind about tasks that are due. */
+  tasks: boolean;
+  /** How long before the due date a task reminder fires. */
+  taskReminderLeadMinutes: number;
+}
+
 export interface UserPreferences {
   theme: ThemeMode;
   userName: string;
   dashboardLayout: 'grid' | 'flex';
   animationsEnabled: boolean;
+  notifications: NotificationPreferences;
+}
+
+export interface PomodoroCompletion {
+  completedMode: PomodoroState['mode'];
+  nextMode: PomodoroState['mode'];
+  at: number;
 }
 
 export interface DashboardState {
@@ -78,4 +96,5 @@ export interface DashboardState {
   pomodoro: PomodoroState;
   weather: WeatherData | null;
   preferences: UserPreferences;
+  lastPomodoroCompletion: PomodoroCompletion | null;
 }

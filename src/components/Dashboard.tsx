@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useDashboardStore } from '../store/dashboardStore'
 import { ThemeToggle } from './ThemeToggle'
+import { NotificationSettings } from './NotificationSettings'
+import { NotificationToasts } from './NotificationToasts'
 import { WIDGET_REGISTRY, getWidgetComponent, getWidgetSizeClasses, AVAILABLE_WIDGETS } from './WidgetRegistry'
 import { Plus, X, Settings, LayoutGrid, Grid3X3 } from 'lucide-react'
 import type { WidgetConfig, WidgetType, WidgetSize } from '../types'
@@ -209,6 +211,10 @@ function SettingsPanel({
               <span className="text-sm">Enable animations</span>
             </label>
           </div>
+
+          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+            <NotificationSettings />
+          </div>
         </div>
 
         <div className="flex justify-end mt-6">
@@ -322,6 +328,8 @@ export function Dashboard() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />
+
+      <NotificationToasts />
     </div>
   )
 }

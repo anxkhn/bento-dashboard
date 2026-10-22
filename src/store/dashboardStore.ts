@@ -6,12 +6,15 @@ import type {
   Note, 
   Task, 
   PomodoroState, 
+  PomodoroCompletion,
   WeatherData, 
   UserPreferences,
+  NotificationPreferences,
   WidgetType,
   Position,
   WidgetSize
 } from '../types'
+import { DEFAULT_NOTIFICATION_PREFERENCES } from '../utils/notifications'
 
 interface DashboardStore {
   widgets: WidgetConfig[]
@@ -20,6 +23,7 @@ interface DashboardStore {
   pomodoro: PomodoroState
   weather: WeatherData | null
   preferences: UserPreferences
+  lastPomodoroCompletion: PomodoroCompletion | null
   
   addWidget: (type: WidgetType, position: Position, size: WidgetSize) => void
   removeWidget: (id: string) => void
@@ -38,14 +42,16 @@ interface DashboardStore {
   startPomodoro: () => void
   pausePomodoro: () => void
   resetPomodoro: () => void
-  tickPomodoro: () => void
+  tickPomodoro: (elapsedSeconds?: number) => void
   skipPomodoroPhase: () => void
+  clearPomodoroCompletion: () => void
   
   setWeather: (data: WeatherData) => void
   
   setTheme: (theme: UserPreferences['theme']) => void
   setUserName: (name: string) => void
   toggleAnimations: () => void
+  updateNotificationPreferences: (changes: Partial<NotificationPreferences>) => void
 }
 
 const defaultWidgets: WidgetConfig[] = [
@@ -61,10 +67,17 @@ const defaultPreferences: UserPreferences = {
   userName: 'User',
   dashboardLayout: 'grid',
   animationsEnabled: true,
+  notifications: DEFAULT_NOTIFICATION_PREFERENCES,
+}
+
+const PHASE_DURATIONS: Record<PomodoroState['mode'], number> = {
+  work: 25 * 60,
+  shortBreak: 5 * 60,
+  longBreak: 15 * 60,
 }
 
 const defaultPomodoro: PomodoroState = {
-  timeLeft: 25 * 60,
+  timeLeft: PHASE_DURATIONS.work,
   isRunning: false,
   mode: 'work',
   sessionsCompleted: 0,
@@ -79,6 +92,7 @@ export const useDashboardStore = create<DashboardStore>()(
       pomodoro: defaultPomodoro,
       weather: null,
       preferences: defaultPreferences,
+      lastPomodoroCompletion: null,
 
       addWidget: (type, position, size) => {
         const newWidget: WidgetConfig = {
@@ -190,45 +204,47 @@ export const useDashboardStore = create<DashboardStore>()(
       },
 
       resetPomodoro: () => {
-        const workDuration = 25 * 60
         set((state) => ({
           pomodoro: {
             ...state.pomodoro,
-            timeLeft: workDuration,
+            timeLeft: PHASE_DURATIONS.work,
             isRunning: false,
             mode: 'work',
           },
         }))
       },
 
-      tickPomodoro: () => {
+      tickPomodoro: (elapsedSeconds = 1) => {
         const state = get()
         if (!state.pomodoro.isRunning) return
         
-        const newTimeLeft = state.pomodoro.timeLeft - 1
+        // Background tabs throttle timers, so the widget reports how much real
+        // time actually passed instead of assuming exactly one second.
+        const elapsed = Math.max(1, Math.floor(elapsedSeconds))
+        const newTimeLeft = state.pomodoro.timeLeft - elapsed
         
         if (newTimeLeft <= 0) {
-          const nextMode = state.pomodoro.mode === 'work' 
+          const completedMode = state.pomodoro.mode
+          const nextMode = completedMode === 'work' 
             ? (state.pomodoro.sessionsCompleted % 4 === 3 ? 'longBreak' : 'shortBreak')
             : 'work'
           
-          const durations = {
-            work: 25 * 60,
-            shortBreak: 5 * 60,
-            longBreak: 15 * 60,
-          }
-          
-          const sessionsCompleted = state.pomodoro.mode === 'work' 
+          const sessionsCompleted = completedMode === 'work' 
             ? state.pomodoro.sessionsCompleted + 1 
             : state.pomodoro.sessionsCompleted
           
           set({
             pomodoro: {
               ...state.pomodoro,
-              timeLeft: durations[nextMode],
+              timeLeft: PHASE_DURATIONS[nextMode],
               mode: nextMode,
               sessionsCompleted,
               isRunning: false,
+            },
+            lastPomodoroCompletion: {
+              completedMode,
+              nextMode,
+              at: Date.now(),
             },
           })
         } else {
@@ -247,25 +263,24 @@ export const useDashboardStore = create<DashboardStore>()(
           ? (state.pomodoro.sessionsCompleted % 4 === 3 ? 'longBreak' : 'shortBreak')
           : 'work'
         
-        const durations = {
-          work: 25 * 60,
-          shortBreak: 5 * 60,
-          longBreak: 15 * 60,
-        }
-        
         const sessionsCompleted = state.pomodoro.mode === 'work' 
           ? state.pomodoro.sessionsCompleted + 1 
           : state.pomodoro.sessionsCompleted
         
+        // Skipping is an explicit user action - no notification for it.
         set({
           pomodoro: {
             ...state.pomodoro,
-            timeLeft: durations[nextMode],
+            timeLeft: PHASE_DURATIONS[nextMode],
             mode: nextMode,
             sessionsCompleted,
             isRunning: false,
           },
         })
+      },
+
+      clearPomodoroCompletion: () => {
+        set({ lastPomodoroCompletion: null })
       },
 
       setWeather: (data) => {
@@ -292,6 +307,19 @@ export const useDashboardStore = create<DashboardStore>()(
           },
         }))
       },
+
+      updateNotificationPreferences: (changes) => {
+        set((state) => ({
+          preferences: {
+            ...state.preferences,
+            notifications: {
+              ...DEFAULT_NOTIFICATION_PREFERENCES,
+              ...state.preferences.notifications,
+              ...changes,
+            },
+          },
+        }))
+      },
     }),
     {
       name: 'bento-dashboard-storage',
@@ -303,6 +331,23 @@ export const useDashboardStore = create<DashboardStore>()(
         pomodoro: state.pomodoro,
         preferences: state.preferences,
       }),
+      // Persisted preferences from older versions predate notification
+      // settings, so fill in the defaults instead of leaving them undefined.
+      merge: (persisted, current) => {
+        const saved = (persisted ?? {}) as Partial<DashboardStore>
+        return {
+          ...current,
+          ...saved,
+          preferences: {
+            ...current.preferences,
+            ...(saved.preferences ?? {}),
+            notifications: {
+              ...DEFAULT_NOTIFICATION_PREFERENCES,
+              ...(saved.preferences?.notifications ?? {}),
+            },
+          },
+        }
+      },
     }
   )
 )

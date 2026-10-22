@@ -21,6 +21,8 @@ const WEATHER_ICONS: Record<string, React.ReactNode> = {
   'snow': <CloudSnow className="w-12 h-12 text-blue-200" />,
 }
 
+const DEFAULT_LOCATION = 'San Francisco'
+
 const API_KEY = 'demo_key'
 const API_URL = 'https://api.openweathermap.org/data/2.5/weather'
 
@@ -28,7 +30,7 @@ export function WeatherWidget() {
   const { weather, setWeather } = useDashboardStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [location, setLocation] = useState('San Francisco')
+  const [location, setLocation] = useState(DEFAULT_LOCATION)
 
   const fetchWeather = useCallback(async (city: string) => {
     setLoading(true)
@@ -64,11 +66,12 @@ export function WeatherWidget() {
     }
   }, [setWeather])
 
+  // Only seeds the default city when nothing is cached. Deliberately does not depend
+  // on `location`, which changes on every keystroke in the search box.
   useEffect(() => {
-    if (!weather) {
-      fetchWeather(location)
-    }
-  }, [])
+    if (weather) return
+    fetchWeather(DEFAULT_LOCATION)
+  }, [weather, fetchWeather])
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

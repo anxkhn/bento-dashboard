@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDashboardStore } from '../../store/dashboardStore'
 import { Play, Pause, RotateCcw, SkipForward } from 'lucide-react'
+import { notifyPomodoroComplete } from '../../utils/notifications'
 
 const POMODORO_SETTINGS = {
   work: 25 * 60,
@@ -15,15 +16,32 @@ const MODE_LABELS = {
 }
 
 export function PomodoroWidget() {
-  const { pomodoro, startPomodoro, pausePomodoro, resetPomodoro, tickPomodoro, skipPomodoroPhase } = useDashboardStore()
+  const {
+    pomodoro,
+    startPomodoro,
+    pausePomodoro,
+    resetPomodoro,
+    tickPomodoro,
+    skipPomodoroPhase,
+    preferences,
+    lastPomodoroCompletion,
+    clearPomodoroCompletion,
+  } = useDashboardStore()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const lastTickRef = useRef<number>(Date.now())
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [customWorkDuration, setCustomWorkDuration] = useState(25)
 
   useEffect(() => {
     if (pomodoro.isRunning) {
+      lastTickRef.current = Date.now()
       intervalRef.current = setInterval(() => {
-        tickPomodoro()
+        // Background tabs throttle intervals, so bill the timer for the real
+        // time that elapsed rather than a flat second per callback.
+        const now = Date.now()
+        const elapsed = Math.max(1, Math.round((now - lastTickRef.current) / 1000))
+        lastTickRef.current = now
+        tickPomodoro(elapsed)
       }, 1000)
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current)
@@ -36,6 +54,17 @@ export function PomodoroWidget() {
       }
     }
   }, [pomodoro.isRunning, tickPomodoro])
+
+  // A phase that ran out on its own (not skipped) is announced once.
+  useEffect(() => {
+    if (!lastPomodoroCompletion) return
+    notifyPomodoroComplete(
+      lastPomodoroCompletion.completedMode,
+      lastPomodoroCompletion.nextMode,
+      preferences?.notifications
+    )
+    clearPomodoroCompletion?.()
+  }, [lastPomodoroCompletion, preferences?.notifications, clearPomodoroCompletion])
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)

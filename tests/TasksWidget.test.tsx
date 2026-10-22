@@ -3,6 +3,10 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useDashboardStore } from '../src/store/dashboardStore'
 import { TasksWidget } from '../src/components/widgets/TasksWidget'
+import {
+  DEFAULT_NOTIFICATION_PREFERENCES,
+  resetTaskReminders,
+} from '../src/utils/notifications'
 
 vi.mock('../src/store/dashboardStore', () => ({
   useDashboardStore: vi.fn(),
@@ -204,5 +208,89 @@ describe('TasksWidget', () => {
     
     const overdueIcon = document.querySelector('.text-red-500 svg')
     expect(overdueIcon).toBeInTheDocument()
+  })
+})
+
+describe('TasksWidget due reminders', () => {
+  const notificationCtor = vi.fn() as unknown as {
+    permission: NotificationPermission
+    requestPermission: ReturnType<typeof vi.fn>
+  }
+
+  const dueSoonTask = () => ({
+    id: 'due-soon',
+    title: 'Ship the PR',
+    completed: false,
+    priority: 'high' as const,
+    dueDate: new Date(Date.now() + 60 * 1000),
+    createdAt: new Date(),
+  })
+
+  const renderWith = (
+    tasks: ReturnType<typeof dueSoonTask>[],
+    notifications = DEFAULT_NOTIFICATION_PREFERENCES
+  ) => {
+    ;(useDashboardStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      tasks,
+      addTask: vi.fn(),
+      toggleTask: vi.fn(),
+      deleteTask: vi.fn(),
+      updateTaskPriority: vi.fn(),
+      preferences: { notifications },
+    })
+    return render(<TasksWidget />)
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    resetTaskReminders()
+    notificationCtor.permission = 'granted'
+    notificationCtor.requestPermission = vi.fn(async () => 'granted' as NotificationPermission)
+    Object.defineProperty(window, 'Notification', {
+      configurable: true,
+      writable: true,
+      value: notificationCtor,
+    })
+  })
+
+  afterEach(() => {
+    // @ts-expect-error - resetting the simulated browser API
+    delete window.Notification
+  })
+
+  it('reminds about a task that is due soon', () => {
+    renderWith([dueSoonTask()])
+
+    expect(notificationCtor).toHaveBeenCalledWith(
+      'Task due soon',
+      expect.objectContaining({ tag: 'bento-task-due-soon' })
+    )
+  })
+
+  it('does not remind about completed tasks', () => {
+    renderWith([{ ...dueSoonTask(), completed: true }])
+
+    expect(notificationCtor).not.toHaveBeenCalled()
+  })
+
+  it('does not remind about tasks without a due date', () => {
+    renderWith([{ ...dueSoonTask(), dueDate: undefined as unknown as Date }])
+
+    expect(notificationCtor).not.toHaveBeenCalled()
+  })
+
+  it('respects the task notification setting', () => {
+    renderWith([dueSoonTask()], { ...DEFAULT_NOTIFICATION_PREFERENCES, tasks: false })
+
+    expect(notificationCtor).not.toHaveBeenCalled()
+  })
+
+  it('reminds only once per task', () => {
+    const task = dueSoonTask()
+    const { unmount } = renderWith([task])
+    unmount()
+    renderWith([task])
+
+    expect(notificationCtor).toHaveBeenCalledTimes(1)
   })
 })

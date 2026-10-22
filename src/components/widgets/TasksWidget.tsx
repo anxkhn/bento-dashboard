@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDashboardStore } from '../../store/dashboardStore'
 import { Plus, Trash2, Check, AlertCircle } from 'lucide-react'
 import { format, isToday, isTomorrow, isPast } from 'date-fns'
+import { runTaskReminderCheck } from '../../utils/notifications'
 
 type Priority = 'low' | 'medium' | 'high'
+
+/** How often due tasks are swept for reminders. */
+export const REMINDER_CHECK_INTERVAL_MS = 30 * 1000
 
 const PRIORITY_COLORS: Record<Priority, string> = {
   low: 'text-green-500',
@@ -18,12 +22,32 @@ const PRIORITY_BG: Record<Priority, string> = {
 }
 
 export function TasksWidget() {
-  const { tasks, addTask, toggleTask, deleteTask, updateTaskPriority } = useDashboardStore()
+  const { tasks, addTask, toggleTask, deleteTask, updateTaskPriority, preferences } = useDashboardStore()
   const [newTaskTitle, setNewTaskTitle] = useState('')
   const [newTaskPriority, setNewTaskPriority] = useState<Priority>('medium')
   const [newTaskDueDate, setNewTaskDueDate] = useState('')
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
   const [isAddingTask, setIsAddingTask] = useState(false)
+
+  const notificationPreferences = preferences?.notifications
+
+  // Due-task reminders. The sweep also runs when the tab becomes visible
+  // again, because background tabs throttle intervals heavily.
+  useEffect(() => {
+    const check = () => runTaskReminderCheck(tasks, notificationPreferences)
+
+    check()
+    const interval = setInterval(check, REMINDER_CHECK_INTERVAL_MS)
+    const onVisibilityChange = () => {
+      if (!document.hidden) check()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [tasks, notificationPreferences])
 
   const handleAddTask = () => {
     if (!newTaskTitle.trim()) return

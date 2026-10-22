@@ -16,6 +16,7 @@ This repository serves as a hands-on learning platform for developers who want t
 - **Task Manager**: Todo list with priorities, due dates, and filtering
 - **Weather Widget**: Current weather conditions with location search
 - **Calendar**: Monthly calendar view with event tracking
+- **Browser Notifications**: Pomodoro completion alerts and task due reminders, with in-app fallback
 - **Theme Support**: Light, dark, and system theme modes
 - **Local Storage**: Persistent data across browser sessions
 
@@ -104,6 +105,8 @@ bento-dashboard/
 ├── src/
 │   ├── components/
 │   │   ├── Dashboard.tsx       # Main dashboard component
+│   │   ├── NotificationSettings.tsx  # Notification permission and preferences UI
+│   │   ├── NotificationToasts.tsx    # In-app fallback for blocked notifications
 │   │   ├── ThemeToggle.tsx     # Theme switcher
 │   │   ├── WidgetRegistry.ts   # Widget type definitions
 │   │   └── widgets/
@@ -120,7 +123,8 @@ bento-dashboard/
 │   │   └── dashboardStore.ts   # Zustand state management
 │   ├── types/
 │   │   └── index.ts            # TypeScript type definitions
-│   ├── utils/                  # Utility functions
+│   ├── utils/
+│   │   └── notifications.ts    # Notifications API wrapper and reminder logic
 │   ├── App.tsx                 # Root component
 │   ├── index.css               # Global styles with Tailwind v4
 │   └── main.tsx                # Application entry point
@@ -129,6 +133,9 @@ bento-dashboard/
 │   ├── ClockWidget.test.tsx
 │   ├── Dashboard.test.tsx
 │   ├── NotesWidget.test.tsx
+│   ├── NotificationSettings.test.tsx
+│   ├── NotificationToasts.test.tsx
+│   ├── notifications.test.ts
 │   ├── PomodoroWidget.test.tsx
 │   ├── TasksWidget.test.tsx
 │   └── ThemeToggle.test.tsx
