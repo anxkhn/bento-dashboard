@@ -48,3 +48,7 @@ Thumbs.db
 .cache
 .parcel-cache
 .eslintcache
+
+# local QA report outputs
+/outputs/qa-reports/*
+!/outputs/qa-reports/.gitkeep

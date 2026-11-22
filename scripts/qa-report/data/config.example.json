@@ -1,0 +1,11 @@
+{
+  "useGoogleSheet": false,
+  "sheetUrl": "",
+  "sheetTab": "Testcases",
+  "targetBranch": "main",
+  "baseBranch": "main",
+  "repo": "iramyaseen/bento-dashboard",
+  "reportTitle": "Bento Dashboard — PR Quality Report",
+  "trigger": "pull_request_opened",
+  "outputDir": "outputs/qa-reports"
+}

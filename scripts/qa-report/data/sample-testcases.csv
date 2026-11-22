@@ -1,0 +1,6 @@
+ID,Feature,Area,Type,Priority,Preconditions,Steps,Expected,Automated,Notes
+TC-UI-001,dashboard,src,functional,P0,App loads,"Open dashboard; verify widgets render","Dashboard grid and widgets visible without crash",Y,Vitest Dashboard tests
+TC-WD-001,widgets,src,functional,P0,Widgets mounted,"Interact with clock/notes/tasks/pomodoro","Widget state updates correctly",Y,Vitest widget test files
+TC-ST-001,store,src,regression,P1,Zustand store,"Add/toggle/persist tasks or notes","State persists as designed",Y,Store/unit coverage
+TC-SEC-001,security,src,security,P0,,"Review PR diff for secrets/XSS patterns","No secrets in source; no unsafe HTML",N,Static scanner
+TC-STR-001,structure,src,regression,P1,PR touches src,"Check folder/layout conventions","No accidental legacy paths; clean imports",N,Structure gate
